@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Medications{% endblock %}
+{% block content %}
+  <div class="card">
+    <span class="pill">Care routine</span>
+    <h1>Medications</h1>
+    <p class="muted">Stay on top of everyday care with a simple, calm overview.</p>
+    <form method="post">
+      <input type="text" name="name" placeholder="Medication name" required>
+      <input type="text" name="dosage" placeholder="Dosage" required>
+      <input type="text" name="frequency" placeholder="Frequency" required>
+      <input type="date" name="start_date" required>
+      <button type="submit">Add medication</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Your medications</h2>
+    {% if medications %}
+      <ul>
+        {% for medication in medications %}
+          <li><strong>{{ medication.name }}</strong> — {{ medication.dosage }} • {{ medication.frequency }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No medication entries yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

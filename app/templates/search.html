@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Search{% endblock %}
+{% block content %}
+  <div class="card">
+    <span class="pill">Find quickly</span>
+    <h1>Search</h1>
+    <p class="muted">Jump back into journals, mood notes, and wellness records in seconds.</p>
+    <form method="get">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search entries" />
+      <button type="submit">Search</button>
+    </form>
+    <p>No results yet.</p>
+  </div>
+{% endblock %}

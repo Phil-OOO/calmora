@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Journal{% endblock %}
+{% block content %}
+  <div class="card">
+    <span class="pill">Reflective space</span>
+    <h1>Your Journal</h1>
+    <p class="muted">Capture the moments that matter and revisit them whenever you need clarity.</p>
+    <form method="post">
+      <input type="text" name="title" placeholder="Entry title" required>
+      <textarea name="content" rows="6" placeholder="Write your thoughts..." required></textarea>
+      <input type="number" name="mood_score" min="1" max="10" value="5">
+      <input type="text" name="tags" placeholder="Tags (comma separated)">
+      <button type="submit">Save entry</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Recent entries</h2>
+    {% if entries %}
+      <ul>
+        {% for entry in entries %}
+          <li><strong>{{ entry.title }}</strong> — {{ entry.content[:120] }}{% if entry.content|length > 120 %}...{% endif %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No journal entries yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

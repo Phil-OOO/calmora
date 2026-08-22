@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Create an account{% endblock %}
+{% block content %}
+  <div class="card" style="max-width: 620px; margin: 0 auto;">
+    <span class="pill">Start your journey</span>
+    <h1>Create your Calmora account</h1>
+    <p class="muted">Track habits, moods, journals, and your wellness rhythm in one place.</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="dev-token">
+      <input type="text" name="full_name" value="{{ full_name or '' }}" placeholder="Full name" required>
+      <input type="text" name="username" value="{{ username or '' }}" placeholder="Username" required>
+      <input type="email" name="email" value="{{ email or '' }}" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <input type="password" name="confirm_password" placeholder="Confirm password" required>
+      <button type="submit">Register</button>
+    </form>
+    <p class="muted"><a href="{{ url_for('auth.login') }}">Back to login</a></p>
+  </div>
+{% endblock %}

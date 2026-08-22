@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Calmora Dashboard{% endblock %}
+{% block content %}
+  <div class="hero">
+    <div class="card">
+      <span class="pill">Your calm corner</span>
+      <h1>Hello, {{ user.full_name or user.username }}</h1>
+      <p class="muted">A little progress every day builds a steadier, brighter routine.</p>
+      <div class="grid">
+        <div class="stat">
+          <strong>{{ mood_count }}</strong>
+          <div class="muted">mood check-ins</div>
+        </div>
+        <div class="stat">
+          <strong>{{ journal_count }}</strong>
+          <div class="muted">journal entries</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Today’s focus</h2>
+      <p class="muted">Take a moment to reflect, breathe, and log how your day feels.</p>
+      <button type="button">Open journal</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Recent moods</h2>
+      <ul>
+        {% for entry in mood_entries %}
+          <li>{{ entry.mood_type }} · score {{ entry.mood_score }}</li>
+        {% else %}
+          <li>No mood entries yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Recent journals</h2>
+      <ul>
+        {% for entry in journal_entries %}
+          <li>{{ entry.title }}</li>
+        {% else %}
+          <li>No journal entries yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

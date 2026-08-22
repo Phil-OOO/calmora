@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>My Profile</h1>
+    <p>Manage your account settings and preferences.</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Profile Card -->
+  <div class="col-lg-4">
+    <div class="card text-center fade-in-up">
+      <div class="card-body p-4">
+        <div class="mx-auto mb-3" style="width:80px;height:80px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;font-weight:700">
+          {{ current_user.full_name[0].upper() }}
+        </div>
+        <h5 class="fw-bold">{{ current_user.full_name }}</h5>
+        <p class="text-muted small">@{{ current_user.username }}</p>
+        {% if current_user.bio %}<p class="text-muted small">{{ current_user.bio }}</p>{% endif %}
+        <div class="d-flex justify-content-center gap-3 mt-3">
+          {% if current_user.is_admin %}
+          <span class="badge bg-warning text-dark"><i class="bi bi-shield-check me-1"></i>Admin</span>
+          {% endif %}
+          <span class="badge bg-success">Active</span>
+        </div>
+        <hr>
+        <div class="text-muted small">
+          <div class="mb-1"><i class="bi bi-envelope me-2"></i>{{ current_user.email }}</div>
+          <div class="mb-1"><i class="bi bi-calendar me-2"></i>Joined {{ current_user.created_at | date }}</div>
+          {% if current_user.last_login %}
+          <div><i class="bi bi-clock me-2"></i>Last login {{ current_user.last_login | time_ago }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="card mt-3 fade-in-up">
+      <div class="card-header"><i class="bi bi-bar-chart me-2"></i>My Stats</div>
+      <div class="card-body">
+        {% set stats = [
+          ('Mood Entries', current_user.moods.count(), '😊'),
+          ('Journal Entries', current_user.journals.count(), '📔'),
+          ('Active Habits', current_user.habits.filter_by(is_active=True).count(), '🎯'),
+          ('Medications', current_user.medications.filter_by(is_active=True).count(), '💊'),
+          ('Therapy Sessions', current_user.therapy_sessions.count(), '🧠'),
+        ] %}
+        {% for label, val, icon in stats %}
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-subtle">
+          <span class="small">{{ icon }} {{ label }}</span>
+          <span class="fw-semibold">{{ val }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Forms -->
+  <div class="col-lg-8">
+    <!-- Update Profile -->
+    <div class="card mb-4 fade-in-up">
+      <div class="card-header fw-semibold"><i class="bi bi-person me-2"></i>Edit Profile</div>
+      <div class="card-body">
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="update_profile">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="full_name" class="form-control"
+                     value="{{ current_user.full_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Timezone</label>
+              <select name="timezone" class="form-select">
+                {% for tz in ['UTC','US/Eastern','US/Central','US/Pacific','Europe/London','Europe/Paris','Asia/Tokyo','Australia/Sydney'] %}
+                <option value="{{ tz }}" {% if current_user.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Bio <span class="text-muted">(optional)</span></label>
+              <textarea name="bio" class="form-control" rows="3"
+                        placeholder="Tell us a little about yourself…">{{ current_user.bio or '' }}</textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card mb-4 fade-in-up">
+      <div class="card-header fw-semibold"><i class="bi bi-lock me-2"></i>Change Password</div>
+      <div class="card-body">
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="change_password">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Current Password</label>
+              <input type="password" name="current_password" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">New Password</label>
+              <input type="password" name="new_password" class="form-control" required minlength="8">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" name="confirm_password" class="form-control" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-outline-danger mt-3">Update Password</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Theme -->
+    <div class="card fade-in-up">
+      <div class="card-header fw-semibold"><i class="bi bi-palette me-2"></i>Appearance</div>
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="fw-medium">Theme</div>
+            <div class="text-muted small">Currently using <strong>{{ current_user.theme }}</strong> mode</div>
+          </div>
+          <button id="themeToggleBtn" class="btn btn-outline-secondary">
+            <i class="bi bi-{% if current_user.theme == 'dark' %}sun{% else %}moon{% endif %} me-1"></i>
+            Switch to {% if current_user.theme == 'dark' %}Light{% else %}Dark{% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('themeToggleBtn')?.addEventListener('click', async () => {
+  const resp = await fetch('', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token() }}' },
+    body: 'action=toggle_theme'
+  });
+  if (resp.ok) location.reload();
+});
+</script>
+{% endblock %}

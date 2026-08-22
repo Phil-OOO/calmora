@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>{{ title }}</h1>
+    <p>Be honest with yourself — every entry matters.</p>
+  </div>
+  <a href="{{ url_for('mood.index') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body p-4">
+        <form method="POST" class="auto-save-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <!-- Mood Type Picker -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">How are you feeling? *</label>
+            <div class="mood-picker d-flex flex-wrap gap-2">
+              {% set moods = [
+                ('happy','😊'),('joyful','😄'),('excited','🤩'),('grateful','🙏'),
+                ('hopeful','🌟'),('content','😊'),('calm','😌'),('neutral','😐'),
+                ('tired','😴'),('confused','😕'),('anxious','😰'),('stressed','😫'),
+                ('overwhelmed','🌊'),('frustrated','😤'),('irritable','😒'),
+                ('sad','😢'),('depressed','😞'),('lonely','💔'),('angry','😠'),('fearful','😨')
+              ] %}
+              {% for mood_val, emoji in moods %}
+              <input type="radio" class="btn-check" name="mood_type" id="mood_{{ mood_val }}"
+                     value="{{ mood_val }}" {% if entry and entry.mood_type == mood_val %}checked{% endif %} required>
+              <label class="btn btn-outline-secondary btn-sm mood-pick-btn" for="mood_{{ mood_val }}">
+                {{ emoji }} {{ mood_val.title() }}
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <!-- Mood Score -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Mood Score: <span class="text-primary" id="mood_score_display">{{ entry.mood_score if entry else 5 }}</span>/10
+              </label>
+              <input type="range" class="form-range" name="mood_score" id="mood_score"
+                     min="1" max="10" step="1" value="{{ entry.mood_score if entry else 5 }}">
+              <div class="d-flex justify-content-between text-muted" style="font-size:.72rem">
+                <span>😞 Low</span><span>😐 Neutral</span><span>😄 High</span>
+              </div>
+            </div>
+
+            <!-- Energy Level -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Energy Level: <span class="text-info" id="energy_level_display">{{ entry.energy_level if entry else 5 }}</span>/10
+              </label>
+              <input type="range" class="form-range" name="energy_level" id="energy_level"
+                     min="1" max="10" value="{{ entry.energy_level if entry else 5 }}">
+              <div class="d-flex justify-content-between text-muted" style="font-size:.72rem">
+                <span>⚡ Exhausted</span><span>⚡ Energized</span>
+              </div>
+            </div>
+
+            <!-- Stress Level -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Stress Level: <span class="text-warning" id="stress_level_display">{{ entry.stress_level if entry else 5 }}</span>/10
+              </label>
+              <input type="range" class="form-range" name="stress_level" id="stress_level"
+                     min="1" max="10" value="{{ entry.stress_level if entry else 5 }}">
+              <div class="d-flex justify-content-between text-muted" style="font-size:.72rem">
+                <span>🌿 Relaxed</span><span>🔥 Stressed</span>
+              </div>
+            </div>
+
+            <!-- Sleep Hours -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Sleep Hours: <span class="text-success" id="sleep_hours_display">{{ entry.sleep_hours if entry else 7.0 }}</span>h
+              </label>
+              <input type="range" class="form-range" name="sleep_hours" id="sleep_hours"
+                     min="0" max="12" step="0.5" value="{{ entry.sleep_hours if entry else 7.0 }}">
+              <div class="d-flex justify-content-between text-muted" style="font-size:.72rem">
+                <span>0h</span><span>6h</span><span>12h</span>
+              </div>
+            </div>
+
+            <!-- Entry Date -->
+            <div class="col-md-6">
+              <label class="form-label">Date</label>
+              <input type="date" name="entry_date" class="form-control"
+                     value="{{ entry.entry_date.isoformat() if entry else today.isoformat() }}"
+                     max="{{ today.isoformat() }}">
+            </div>
+
+            <!-- Weather -->
+            <div class="col-md-6">
+              <label class="form-label">Weather <span class="text-muted">(optional)</span></label>
+              <select name="weather" class="form-select">
+                <option value="">Select weather…</option>
+                {% for w in ['Sunny','Cloudy','Rainy','Stormy','Snowy','Windy','Foggy','Hot','Cold'] %}
+                <option value="{{ w }}" {% if entry and entry.weather == w %}selected{% endif %}>{{ w }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Triggers -->
+            <div class="col-md-6">
+              <label class="form-label">Triggers <span class="text-muted">(comma-separated)</span></label>
+              <input type="text" name="triggers" class="form-control"
+                     placeholder="e.g. work stress, lack of sleep"
+                     value="{{ entry.triggers if entry and entry.triggers else '' }}">
+            </div>
+
+            <!-- Activities -->
+            <div class="col-md-6">
+              <label class="form-label">Activities <span class="text-muted">(comma-separated)</span></label>
+              <input type="text" name="activities" class="form-control"
+                     placeholder="e.g. exercise, meditation, reading"
+                     value="{{ entry.activities if entry and entry.activities else '' }}">
+            </div>
+
+            <!-- Notes -->
+            <div class="col-12">
+              <label class="form-label">Notes <span class="text-muted">(optional)</span></label>
+              <textarea name="notes" class="form-control" rows="3"
+                        placeholder="What's on your mind? Any context for this mood?">{{ entry.notes if entry and entry.notes else '' }}</textarea>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-check-circle me-1"></i>
+              {{ 'Update Entry' if entry else 'Save Mood' }}
+            </button>
+            <a href="{{ url_for('mood.index') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Sync all range sliders with their display spans
+['mood_score','energy_level','stress_level','sleep_hours'].forEach(id => {
+  const slider = document.getElementById(id);
+  const display = document.getElementById(id + '_display');
+  if (slider && display) {
+    slider.addEventListener('input', () => display.textContent = slider.value);
+  }
+});
+
+// Mood picker button styles
+document.querySelectorAll('.btn-check').forEach(input => {
+  const update = () => {
+    document.querySelectorAll('.mood-pick-btn').forEach(l => l.classList.remove('active'));
+    if (input.checked) input.nextElementSibling.classList.add('active');
+  };
+  input.addEventListener('change', update);
+  if (input.checked) update();
+});
+</script>
+{% endblock %}

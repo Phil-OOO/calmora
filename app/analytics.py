@@ -1,0 +1,10 @@
+from flask import Blueprint, render_template
+from flask_login import current_user, login_required
+
+analytics_bp = Blueprint('analytics', __name__)
+
+
+@analytics_bp.route('/')
+@login_required
+def index():
+    return render_template('analytics.html', charts=[])

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Mood Tracker{% endblock %}
+{% block content %}
+  <div class="card">
+    <span class="pill">Mood check-in</span>
+    <h1>Mood Tracker</h1>
+    <p class="muted">Notice patterns, spot shifts, and build awareness over time.</p>
+    <form method="post">
+      <input type="text" name="mood_type" placeholder="How are you feeling?" required>
+      <input type="number" name="mood_score" min="1" max="10" value="5">
+      <textarea name="notes" rows="4" placeholder="Any context or notes?"></textarea>
+      <button type="submit">Save check-in</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Recent moods</h2>
+    {% if entries %}
+      <ul>
+        {% for entry in entries %}
+          <li><strong>{{ entry.mood_type }}</strong> — score {{ entry.mood_score }}{% if entry.notes %} — {{ entry.notes }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No mood entries yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

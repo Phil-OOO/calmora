@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block page_title %}Calendar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Wellness Calendar</h1>
+    <p>All your moods, sessions, habits, and journal entries in one view.</p>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+  {% set legend = [
+    ('#10b981', 'Mood (High)'), ('#3b82f6', 'Mood (Good)'),
+    ('#f59e0b', 'Mood (Mid)'), ('#ef4444', 'Mood (Low)'),
+    ('#8b5cf6', 'Therapy'), ('#f59e0b', 'Med Refill'),
+    ('#06b6d4', 'Journal'), ('#5b8a6e', 'Habits'),
+  ] %}
+  {% for color, label in legend %}
+  <span class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded small"
+        style="background:{{ color }}20;color:{{ color }};border:1px solid {{ color }}40">
+    <span style="width:8px;height:8px;border-radius:50%;background:{{ color }};display:inline-block"></span>
+    {{ label }}
+  </span>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-body p-3">
+    <div id="calendarContainer"></div>
+  </div>
+</div>
+
+<!-- Event detail modal -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalTitle">Event Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="eventModalBody"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const calendar = new FullCalendar.Calendar(document.getElementById('calendarContainer'), {
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+    },
+    height: 700,
+    events: '/analytics/data/calendar-events',
+    eventClick: function(info) {
+      const ev = info.event;
+      const props = ev.extendedProps;
+      document.getElementById('eventModalTitle').textContent = ev.title;
+      let body = `<p><strong>Date:</strong> ${ev.start.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</p>`;
+      if (props.type === 'mood') body += `<p><strong>Score:</strong> ${props.score}/10</p>`;
+      if (props.type === 'therapy') body += `<p><strong>Status:</strong> ${props.status}</p>`;
+      document.getElementById('eventModalBody').innerHTML = body;
+      new bootstrap.Modal(document.getElementById('eventModal')).show();
+    },
+    dayMaxEvents: 3,
+    eventDisplay: 'block',
+    nowIndicator: true,
+    weekNumbers: false,
+    selectable: false,
+    eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: 'short' }
+  });
+  calendar.render();
+});
+</script>
+{% endblock %}

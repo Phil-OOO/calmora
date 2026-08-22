@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Symptoms{% endblock %}
+{% block content %}
+  <div class="card">
+    <span class="pill">Wellness insights</span>
+    <h1>Symptoms</h1>
+    <p class="muted">Track notable patterns and keep your care team informed with clarity.</p>
+    <form method="post">
+      <input type="text" name="symptom_name" placeholder="Symptom name" required>
+      <input type="number" name="severity" min="1" max="10" value="5">
+      <textarea name="notes" rows="4" placeholder="Describe what you noticed"></textarea>
+      <button type="submit">Log symptom</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Recent symptoms</h2>
+    {% if symptoms %}
+      <ul>
+        {% for symptom in symptoms %}
+          <li><strong>{{ symptom.symptom_name }}</strong> — severity {{ symptom.severity }}{% if symptom.notes %} — {{ symptom.notes }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No symptoms logged yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block page_title %}Search{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Search</h1>
+    <p>{% if query %}{{ total }} result{{ 's' if total != 1 }} for "{{ query }}"{% else %}Search across all your data{% endif %}</p>
+  </div>
+</div>
+
+<!-- Search Box -->
+<form action="{{ url_for('search.index') }}" method="GET" class="mb-4">
+  <div class="input-group input-group-lg" style="max-width:600px">
+    <span class="input-group-text bg-transparent"><i class="bi bi-search text-muted"></i></span>
+    <input type="text" name="q" class="form-control" value="{{ query }}"
+           placeholder="Search moods, journal, symptoms, medications…" autofocus>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </div>
+</form>
+
+{% if query %}
+
+{% if total == 0 %}
+<div class="empty-state card">
+  <div class="card-body">
+    <div class="empty-icon">🔍</div>
+    <h4>No results found</h4>
+    <p>Try different keywords or check your spelling.</p>
+  </div>
+</div>
+{% else %}
+
+<div class="row g-4">
+
+  <!-- Journal Results -->
+  {% if results.journals %}
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-journal-text me-2 text-info"></i>Journal ({{ results.journals|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for e in results.journals %}
+        <a href="{{ url_for('journal.view', entry_id=e.id) }}" class="list-group-item list-group-item-action bg-transparent">
+          <div class="d-flex justify-content-between">
+            <span class="fw-medium">{{ e.title }}</span>
+            <span class="text-muted small">{{ e.entry_date | date }}</span>
+          </div>
+          <small class="text-muted">{{ e.content | truncate(100) }}</small>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Mood Results -->
+  {% if results.moods %}
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-emoji-smile me-2 text-success"></i>Moods ({{ results.moods|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for m in results.moods %}
+        <a href="{{ url_for('mood.edit', entry_id=m.id) }}" class="list-group-item list-group-item-action bg-transparent">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>{{ m.mood_type | mood_emoji }} {{ m.mood_type.title() }}</span>
+            <span class="badge bg-light text-dark">{{ m.mood_score }}/10</span>
+          </div>
+          <small class="text-muted">{{ m.entry_date | date }}</small>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Symptoms Results -->
+  {% if results.symptoms %}
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-activity me-2 text-warning"></i>Symptoms ({{ results.symptoms|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for s in results.symptoms %}
+        <a href="{{ url_for('symptoms.edit', entry_id=s.id) }}" class="list-group-item list-group-item-action bg-transparent">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-medium">{{ s.symptom_name }}</span>
+            <span class="badge {% if s.severity >= 7 %}bg-danger{% elif s.severity >= 4 %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ s.severity }}/10</span>
+          </div>
+          <small class="text-muted">{{ s.entry_date | date }} · {{ s.category.title() }}</small>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Medications Results -->
+  {% if results.medications %}
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-capsule me-2 text-primary"></i>Medications ({{ results.medications|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for m in results.medications %}
+        <a href="{{ url_for('medications.edit', med_id=m.id) }}" class="list-group-item list-group-item-action bg-transparent">
+          <div class="fw-medium">{{ m.name }}</div>
+          <small class="text-muted">{{ m.dosage }} · {{ m.frequency }}</small>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Habits Results -->
+  {% if results.habits %}
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-check2-circle me-2 text-purple"></i>Habits ({{ results.habits|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for h in results.habits %}
+        <a href="{{ url_for('habits.edit', habit_id=h.id) }}" class="list-group-item list-group-item-action bg-transparent">
+          <span style="font-size:1.1rem">{{ h.icon }}</span>
+          <span class="fw-medium ms-2">{{ h.name }}</span>
+          <small class="text-muted d-block">{{ h.category.title() }} · {{ h.frequency.title() }}</small>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

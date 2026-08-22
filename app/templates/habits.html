@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Habits{% endblock %}
+{% block content %}
+  <div class="card">
+    <span class="pill">Small wins</span>
+    <h1>Habits</h1>
+    <p class="muted">Build momentum with little habits that compound into meaningful change.</p>
+    <form method="post">
+      <input type="text" name="name" placeholder="Habit name" required>
+      <textarea name="description" rows="3" placeholder="What are you building?"></textarea>
+      <input type="text" name="category" placeholder="Category (wellness, sleep, exercise, social)">
+      <button type="submit">Add habit</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Your habits</h2>
+    {% if habits %}
+      <ul>
+        {% for habit in habits %}
+          <li><strong>{{ habit.name }}</strong>{% if habit.description %} — {{ habit.description }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No habits tracked yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}
