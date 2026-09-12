@@ -71,6 +71,19 @@ def create_app(config_name='default'):
         import models  # noqa: F401
         app_db.create_all()
 
+        from models import User
+        if User.query.filter((User.username == 'admin') | (User.email == 'admin@calmora.local')).first() is None:
+            admin = User(
+                username='admin',
+                email='admin@calmora.local',
+                full_name='Calmora Admin',
+                is_admin=True,
+                is_active=True,
+            )
+            admin.set_password('Admin1234')
+            app_db.session.add(admin)
+            app_db.session.commit()
+
     return app
 
 

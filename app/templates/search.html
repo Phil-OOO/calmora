@@ -9,6 +9,20 @@
       <input type="text" name="q" value="{{ query }}" placeholder="Search entries" />
       <button type="submit">Search</button>
     </form>
-    <p>No results yet.</p>
+
+    {% if results %}
+      <ul>
+        {% for result in results %}
+          <li>
+            <strong>{{ result.type }}</strong> — <a href="{{ result.url }}">{{ result.title }}</a>
+            <div class="muted">{{ result.summary }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% elif query %}
+      <p class="muted">No results found for “{{ query }}”.</p>
+    {% else %}
+      <p class="muted">Search for a mood, journaling topic, habit, symptom, or medication.</p>
+    {% endif %}
   </div>
 {% endblock %}

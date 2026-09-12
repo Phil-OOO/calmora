@@ -5,6 +5,40 @@
     <span class="pill">Support plan</span>
     <h1>Therapy</h1>
     <p class="muted">Keep upcoming sessions and reflection notes close at hand.</p>
-    <p>No therapy sessions yet.</p>
+    <form method="post">
+      <input type="text" name="therapist_name" placeholder="Therapist name" required>
+      <select name="session_type">
+        <option value="individual">Individual</option>
+        <option value="group">Group</option>
+        <option value="online">Online</option>
+      </select>
+      <input type="datetime-local" name="scheduled_at" required>
+      <input type="number" name="duration_minutes" value="60" min="15" max="240">
+      <input type="text" name="location" placeholder="Location or video link">
+      <select name="status">
+        <option value="scheduled">Scheduled</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <textarea name="notes" rows="4" placeholder="Session notes or goals"></textarea>
+      <button type="submit">Save session</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Upcoming sessions</h2>
+    {% if sessions %}
+      <ul>
+        {% for session in sessions %}
+          <li>
+            <strong>{{ session.therapist_name }}</strong> — {{ session.session_type }}
+            {% if session.scheduled_at %} • {{ session.scheduled_at.strftime('%Y-%m-%d %H:%M') }}{% endif %}
+            {% if session.location %} • {{ session.location }}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No therapy sessions yet.</p>
+    {% endif %}
   </div>
 {% endblock %}
